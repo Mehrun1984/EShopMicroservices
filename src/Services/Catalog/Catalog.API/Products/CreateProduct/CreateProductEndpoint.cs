@@ -1,4 +1,6 @@
 ﻿using Carter;
+using Mapster;
+using MediatR;
 
 namespace Catalog.API.Products.CreateProduct
 {
@@ -16,7 +18,24 @@ namespace Catalog.API.Products.CreateProduct
 	{
 		public void AddRoutes(IEndpointRouteBuilder app)
 		{
-			throw new NotImplementedException();
+			app.MapPost("/products", async (CreateProductRequest request, ISender sender) =>
+			{
+				// map request (CreateProductRequest) to CreateProductCommand , Adapt is generic
+				var command = request.Adapt<CreateProductCommand>();
+
+				// use mediatR to send comand to CreateProductCommand
+				var result = await sender.Send(command);
+
+				// map result of command handler to CreateProductResponse
+				var response = result.Adapt<CreateProductResponse>();
+
+				return Results.Created($"/products{result.Id}", result);
+			})
+				.WithName("CreateProduct")
+				.Produces<CreateProductResponse>(StatusCodes.Status201Created)
+				.ProducesProblem(StatusCodes.Status400BadRequest)
+				.WithSummary("Create Poduct")
+				.WithDescription("Create Poduct");
 		}
 	}
 }
