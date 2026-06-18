@@ -1,3 +1,5 @@
+using JasperFx;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to container.
@@ -7,6 +9,7 @@ builder.Services.AddMediatR(config => config.RegisterServicesFromAssemblies(type
 
 builder.Services.AddMarten(opts => {
 	opts.Connection(builder.Configuration.GetConnectionString("Database")!);
+	opts.AutoCreateSchemaObjects = AutoCreate.All;
 }).UseLightweightSessions();
 
 var app = builder.Build();
